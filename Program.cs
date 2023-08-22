@@ -5,17 +5,16 @@ using System.Collections;
 using System.Net;
 using System.Web;
 using WebScrapper;
-using DocumentFormat.OpenXml;
 using static System.Net.WebRequestMethods;
+using ClosedXML.Excel;
 
 HelperScrapper helperScrapper = new HelperScrapper();
-Console.WriteLine("Hello, World!");
 List<Product> products = new List<Product>();
 List<string> categoriesProductLink = new List<string>();
 string fullUrl = "https://superetti.dz/";
 var response = HelperScrapper.CallUrl(fullUrl).Result;
 categoriesProductLink = HelperScrapper.GetCategoriesLink(response);
-Console.WriteLine("hello");
+
 
 
 foreach (string categoryProductLink in categoriesProductLink)
@@ -44,9 +43,9 @@ foreach (string categoryProductLink in categoriesProductLink)
 
     Console.WriteLine("hello world");
 }
-IEnumerable<Product> listProducts;
+var wb = new XLWorkbook();
+var ws = wb.Worksheets.Add("Data_Test_Worksheet");
+ws.Cell(1, 1).InsertTable<Product>(products);
 
-
-products.ToTable();
-Console.WriteLine("hello world");
+wb.SaveAs(@"products.xlsx");
 

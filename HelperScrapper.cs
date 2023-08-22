@@ -54,21 +54,24 @@ namespace WebScrapper
                 //productLinkNode.SelectSingleNode(".//img"); 
 
 
-                string price = "0";
+                string pricestring = "0";
+                decimal price = 0;
+                string fileName = "";
                 if (nodePrice!=null)
                 {
 
-                    HttpUtility.HtmlDecode(node.SelectSingleNode(".//span[@class='woocommerce-Price-amount amount']")?.InnerText).Replace("DZD", "").Trim();
+                    pricestring=  HttpUtility.HtmlDecode(node.SelectSingleNode(".//span[@class='woocommerce-Price-amount amount']")?.InnerText).Replace("DZD", "").Trim();
+                    Decimal.TryParse(pricestring, out price);
                 }
                 if (productLinkNode!=null)
                 {
                    urlImg = productLinkNode.Attributes["src"].Value;
-                    string fileName = title.Replace("/", "_").Replace("*", "").Replace(";", "").Replace(':', ' ');
-                    DownloadFileAsync(urlImg, "F:\\imgProduct\\"+fileName+".png");
+                     fileName = title.Replace("/", "_").Replace("*", "").Replace(";", "").Replace(':', ' ')+".png";
+                    DownloadFileAsync(urlImg, ".\\imgProduct\\"+fileName);
                 }
               
               
-                Product product = new Product{ Name = title, Category = category, Price = decimal.Parse(price),UrlImage=urlImg };
+                Product product = new Product{ Name = title, Category = category, Price = price,UrlImage=urlImg,FileName= fileName };
                 products.Add(product);
             }
         return  products;
@@ -88,11 +91,18 @@ namespace WebScrapper
             //       , nameof(outputPath));
 
             byte[] fileBytes = await _httpClient.GetByteArrayAsync(uri);
-            File.WriteAllBytes(outputPath, fileBytes);
+            try
+            {
+                File.WriteAllBytes(outputPath, fileBytes);
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine($"error {e.Message}");
+            }
+           
         }
-        public static void exportToExcel()
-        {
-        }
+      
     }
 
 
